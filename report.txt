@@ -1,0 +1,42 @@
+I first created a 16-byte key to be used in both ECB and CBC encryptions.
+$ cat part1.key
+00112233445566778899aabbccddeeff
+
+Then I created an IV to be used in CBC mode.
+$ cat part1.iv
+0123456789abcdeffedcba9876543210
+
+$ openssl enc -aes-128-ecb -K $(cat part1.key) -in original.bmp -out ecb.bmp
+$ openssl enc -aes-128-cbc -K $(cat part1.key) -iv $(cat part1.iv) -in original.bmp -out cbc.bmp
+
+dd bs=1 if=bitmap_header of=ecb.bmp conv=notrunc
+dd bs=1 if=bitmap_header of=cbc.bmp conv=notrunc
+
+In ECB mode each block of plaintext (in this case image pixels) are encrypted 
+independent from eachother. This results in the patterns being preserved in the
+ciphertext (output image). Original image consists of a red ellips and a cyan 
+rectangle on a white background.
+
+To explain how the details are preserved consider the original.bmp image. It 
+consists of a red ellips and a cyan rectangle on a white background. Since the
+original image is a 24-bit bitmap image, using 128-bit blocksize we encode 
+roughly 5 pixels per block. This means every identical ~5 pixels will result in
+the same encoded ~5 pixels. Furthermore, our image has a lot of identical 5
+pixel groups. So when we encode the image the background will consist of a
+roughly 5 pixel pattern. Similar is valid for the ellips and the rectangle. 
+Only thing to consider is that the edges of the shapes may be distorted in the 
+encoded image but since the blocksize is relatively small this doesn't prevent 
+us from seeing the general shapes in the image. In a more carefully crafted 
+image we can clearly see the patterns emerging on the background and the shapes
+themselves. (Image is 128x128 32-bit bmp image, 32bit is important to exactly 
+fill 128bit block of the cipher)
+
+In the CBC mode each block of plaintext is xor'ed with the previous block's
+ciphertext before being encrypted. Since the plaintext in each block is xored
+with the previous block's ciphertext, even if we encrypt two identical blocks we
+get different outputs. This solves the diffusion problem in the ECB mode, in
+which the output displays the patterns from the original image. In CBC each
+block again consists of ~5 pixels, but this time output of the same 5pixel
+values are different as they are xored with the result of previous 5pixel's
+values. Encrypted image 'looks like' the pixel values are randomly generated,
+and there is no immediately appearent pattern.
