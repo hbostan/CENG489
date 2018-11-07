@@ -1,0 +1,14 @@
+I have a question about T array that you mentioned in the assignment text. What
+prevents us from just xoring a block of plaintext and the previous ciphertext
+block?
+
+We can easily get the plaintext of the given ciphertext by just calling the
+decr() function, which returns us the padded plaintext and then we can just xor
+each plaintext block n with the ciphertext block n-1 to get all the 'T' blocks,
+except the first one which is xored with the IV.
+
+I can see how the method you mentioned is useful especially in situations where
+we don't have direct access to decryption method and/or the plaintext, but we
+can deduce whether the decryption is succedeed or failed. But in the homework
+this is not the case. I don't see the need to find T array byte by byte, is
+there anything that I am missing?
