@@ -41,6 +41,7 @@ def attack(ct, dp):
     return attack_ciphertext
 
 if len(sys.argv) !=  3:
+    print len(sys.argv)
     for i in sys.argv:
         print i
     exit()
@@ -48,4 +49,5 @@ pt = "_______________________________________________"
 ct = sys.argv[1]
 dp = sys.argv[2]
 res = attack(ct, dp)
-print res
+sys.stdout.write(res)
+#print res,"HOAYDAA"
